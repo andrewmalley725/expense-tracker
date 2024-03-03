@@ -106,15 +106,25 @@ function App(){
 
     const newCategory = () => {
       setFunc(<AddCategory/>);
-      setShow(!show);
+      setShow(true);
+      //console.log(show);
+    }
+
+    const addFunds = () => {
+      setFunc(<Payday/>);
+      setShow(true);
+    }
+
+    const addExpense = () => {
+      setFunc(<Expense/>);
+      setShow(true);
     }
 
     return (
       data ? (
         <div className="categories-container">
           <h2>Welcome {data.user}</h2>
-          <h4>Current Balance: {data.total_balance}</h4>
-          <b>Categories:</b>
+          <h4>Current Balance: ${data.total_balance}</h4>
           <table>
             <thead>
               <tr>
@@ -127,8 +137,8 @@ function App(){
               {data.accounts ? data.accounts.map(rec => (
                 <tr>
                   <td>{rec.account_name}</td>
-                  <td>{rec.weight}</td>
-                  <td>{rec.balance}</td>
+                  <td>{rec.weight * 100}%</td>
+                  <td>${rec.balance}</td>
                 </tr>
               )) 
               : <></>}
@@ -141,13 +151,15 @@ function App(){
                 <td></td>
                 <td>
                   <b>
-                    {data.total_balance}
+                    ${data.total_balance}
                   </b>
                 </td>
               </tr>
             </tbody>
           </table>
           <button type='button' onClick={newCategory}>New category</button>
+          <button type='button' onClick={addFunds}>Add funds</button>
+          <button type='button' onClick={addExpense}>Add expense</button>
         </div>
       ) : <></>
     );
@@ -160,6 +172,8 @@ function App(){
 
     const url = `${api}/newCategory`;
 
+    // console.log(show);
+
     const add = () => {
       const apiKey = localStorage.getItem("apiKey");
 
@@ -170,8 +184,8 @@ function App(){
       const body = {
         userid: localStorage.getItem('userId'),
         name: name.current,
-        weight: weight.current,
-        balance: balance.current
+        weight: parseFloat(weight.current) / 100,
+        balance: parseFloat(balance.current)
       };
 
       axios.post(url, body, { headers }).then(res => {
@@ -184,9 +198,140 @@ function App(){
     return(
       <div className="form-container">
         Category Name: <input type='text' onChange={(e) => {name.current = e.target.value}}></input><br/>
-        Weight: <input type='number' onChange={(e) => {weight.current = e.target.value}}></input><br/>
+        Weight: %<input type='number' onChange={(e) => {weight.current = e.target.value}}></input><br/>
         Balance: <input type='number' onChange={(e) => {balance.current = e.target.value}}></input><br/>
         <button type='button' onClick={add}>Add</button>
+        <button type='button' onClick={() => setShow(false)}>Close</button>
+      </div>
+    )
+  }
+
+  function Payday(){
+    const [data, setData] = useState({});
+    const accountid = useRef(null);
+    const amount = useRef(0);
+    const description = useRef("");
+    const url = `${api}/payday`;
+
+    useEffect(() => {
+      const uid = localStorage.getItem("userId");
+      const apiKey = localStorage.getItem("apiKey");
+      
+      if (uid){
+        const payload = {
+          headers: {
+            'x-api-key': apiKey
+          }
+        }
+        axios.get(`${api}/categories/${uid}`, payload).then(res => {
+          setData(res.data);
+        });
+    }
+    }, []);
+
+    const add = () => {
+      const apiKey = localStorage.getItem("apiKey");
+
+      const headers = {
+        'x-api-key': apiKey
+      }
+
+      const body = {
+        userid: localStorage.getItem("userId"),
+        accountid: parseInt(accountid.current) || null,
+        amount: parseFloat(amount.current),
+        description: description.current
+      };
+
+      axios.post(url, body, { headers }).then(res => {
+        console.log('added');
+        setShow(false);
+      })
+      .catch(error => {console.log(error)});
+    }
+
+    return(
+      <div className='form-container'>
+        Account: <select onChange={(e) => accountid.current = e.target.value}>
+          <option selected disabled>Select a category to allocate money to (if any)</option>
+          <option value={null}>None</option>
+          {
+            data.accounts ? data.accounts.map(rec => {
+              return(
+                <option value={rec.accountid}>{rec.account_name}</option>
+              )
+            }) : <></>
+          }
+        </select><br/>
+        Amount: $<input type='number' onChange={(e) => {amount.current = e.target.value}}></input><br/>
+        Description: <input type='text' onChange={(e) => {description.current = e.target.value}}></input><br/>
+        <button type='button' onClick={add}>Add</button>
+        <button type='button' onClick={() => setShow(false)}>Close</button>
+      </div>
+    )
+  }
+
+  function Expense(){
+    const [data, setData] = useState({});
+    const accountid = useRef(null);
+    const amount = useRef(0);
+    const description = useRef("");
+    const url = `${api}/newExpense`;
+
+    useEffect(() => {
+      const uid = localStorage.getItem("userId");
+      const apiKey = localStorage.getItem("apiKey");
+      
+      if (uid){
+        const payload = {
+          headers: {
+            'x-api-key': apiKey
+          }
+        }
+        axios.get(`${api}/categories/${uid}`, payload).then(res => {
+          setData(res.data);
+        });
+    }
+    }, []);
+
+    const add = () => {
+      const apiKey = localStorage.getItem("apiKey");
+
+      const headers = {
+        'x-api-key': apiKey
+      }
+
+      const body = {
+        userid: localStorage.getItem("userId"),
+        accountid: parseInt(accountid.current) || null,
+        amount: parseFloat(amount.current),
+        description: description.current
+      };
+
+      axios.post(url, body, { headers }).then(res => {
+        console.log('added');
+        setShow(false);
+      })
+      .catch(error => {console.log(error)});
+    }
+
+    return(
+      <div className='form-container'>
+        Account: <select onChange={(e) => accountid.current = e.target.value}>
+          <option selected disabled>Select a category</option>
+          <option value={null}>None</option>
+          {
+            data.accounts ? data.accounts.map(rec => {
+              return(
+                <option value={rec.accountid}>{rec.account_name}</option>
+              )
+            }) : <></>
+          }
+        </select><br/>
+        Amount: $<input type='number' onChange={(e) => {amount.current = e.target.value}}></input><br/>
+        Description: <input type='text' onChange={(e) => {description.current = e.target.value}}></input><br/>
+        <button type='button' onClick={add}>Add</button>
+        <button type='button' onClick={() => setShow(false)}>Close</button>
       </div>
     )
   }
