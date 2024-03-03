@@ -2,6 +2,8 @@ import './styles.css';
 import axios from 'axios';
 import { useState, useRef, useEffect } from 'react';
 
+localStorage.clear();
+
 function App(){
   const api = 'https://sample-project-667a4.web.app/api';
   const [show, setShow] = useState(true);
@@ -17,11 +19,11 @@ function App(){
 
     const submit = () => {
       const body = {
-        userName: username,
-        first: firstname,
-        last: lastname,
-        pass: password,
-        email: email
+        userName: username.current,
+        first: firstname.current,
+        last: lastname.current,
+        pass: password.current,
+        email: email.current
       };
 
       axios.post(`${api}/newUser`, body).then(res => {
@@ -32,10 +34,11 @@ function App(){
         setShow(!show);
         setLogin(!login);
       })
+      .catch(error => console.log(error));
     }
 
     return(
-      <div>
+      <div className="form-container">
         First Name: <input type='text' onChange={(e) => firstname.current = e.target.value}></input><br/>
         Last Name: <input type='text' onChange={(e) => lastname.current = e.target.value}></input><br/>
         Email: <input type='text' onChange={(e) => email.current = e.target.value}></input><br/>
@@ -72,7 +75,7 @@ function App(){
       })
     }
     return(
-      <div>
+      <div className="form-container">
         <p style={{color: 'red'}}>{msg}</p>
         Username: <input type='text' onChange={(e) => username.current = e.target.value}></input><br/>
         Password: <input type='text' onChange={(e) => password.current = e.target.value}></input><br/>
@@ -108,7 +111,7 @@ function App(){
 
     return (
       data ? (
-        <div>
+        <div className="categories-container">
           <h2>Welcome {data.user}</h2>
           <h4>Current Balance: {data.total_balance}</h4>
           <b>Categories:</b>
@@ -179,7 +182,7 @@ function App(){
     }
 
     return(
-      <div>
+      <div className="form-container">
         Category Name: <input type='text' onChange={(e) => {name.current = e.target.value}}></input><br/>
         Weight: <input type='number' onChange={(e) => {weight.current = e.target.value}}></input><br/>
         Balance: <input type='number' onChange={(e) => {balance.current = e.target.value}}></input><br/>
