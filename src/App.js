@@ -104,6 +104,8 @@ function App(){
     }
     }, []);
 
+    
+
     const newCategory = () => {
       setFunc(<AddCategory/>);
       setShow(true);
@@ -127,11 +129,17 @@ function App(){
       setShow(true);
     }
 
+    const calculateTotalWeight = () => {
+      if (data && data.accounts){
+        return data.accounts.reduce((total, rec) => total + rec.weight, 0);
+      }
+    };
+
     return (
       data ? (
         <div className="categories-container">
           <h2>Welcome {data.user}</h2>
-          <h4>Current Balance: ${data.total_balance}</h4>
+          <h2>Current Total Balance: ${data.total_balance}</h2>
           <table>
             <thead>
               <tr>
@@ -155,10 +163,10 @@ function App(){
                     TOTAL
                   </b>
                 </td>
-                <td></td>
+                <td><b>{(calculateTotalWeight() * 100).toFixed(0)}%</b></td>
                 <td>
                   <b>
-                    ${data.total_balance}
+                    ${(data.total_balance * calculateTotalWeight()).toFixed(0)}
                   </b>
                 </td>
               </tr>
