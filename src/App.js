@@ -31,8 +31,8 @@ function App(){
         localStorage.setItem("username", res.data.record.username);
         localStorage.setItem("name", `${res.data.record.firstname} ${res.data.record.lastname}`);
         localStorage.setItem("apiKey", res.data.apiKey);
-        setShow(!show);
-        setLogin(!login);
+        setShow(false);
+        setLogin(true);
       })
       .catch(error => console.log(error));
     }
@@ -66,8 +66,8 @@ function App(){
           localStorage.setItem("username", res.data.record.username);
           localStorage.setItem("name", `${res.data.record.firstname} ${res.data.record.lastname}`);
           localStorage.setItem("apiKey", res.data.apiKey);
-          setShow(!show);
-          setLogin(!login);
+          setShow(false);
+          setLogin(true);
         }
         else {
           setMsg(res.data.status);
@@ -120,6 +120,13 @@ function App(){
       setShow(true);
     }
 
+    const logout = () => {
+      localStorage.clear();
+      setFunc(<Login/>);
+      setLogin(false);
+      setShow(true);
+    }
+
     return (
       data ? (
         <div className="categories-container">
@@ -160,6 +167,7 @@ function App(){
           <button type='button' onClick={newCategory}>New category</button>
           <button type='button' onClick={addFunds}>Add funds</button>
           <button type='button' onClick={addExpense}>Add expense</button>
+          <button type='button' onClick={logout}>Logout</button>
         </div>
       ) : <></>
     );
