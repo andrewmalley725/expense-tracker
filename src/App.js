@@ -43,7 +43,7 @@ function App(){
         Last Name: <input type='text' onChange={(e) => lastname.current = e.target.value}></input><br/>
         Email: <input type='text' onChange={(e) => email.current = e.target.value}></input><br/>
         Username: <input type='text' onChange={(e) => username.current = e.target.value}></input><br/>
-        Password: <input type='text' onChange={(e) => password.current = e.target.value}></input><br/>
+        Password: <input type='password' onChange={(e) => password.current = e.target.value}></input><br/>
         <button type='button' onClick={submit}>Submit</button>  
         <button type='button' onClick={() => setFunc(<Login/>)}>Already have an account</button>
       </div>
@@ -79,7 +79,7 @@ function App(){
         <h4>Expense tracker login</h4>
         <p style={{color: 'red'}}>{msg}</p>
         Username: <input type='text' onChange={(e) => username.current = e.target.value}></input><br/>
-        Password: <input type='text' onChange={(e) => password.current = e.target.value}></input><br/>
+        Password: <input type='password' onChange={(e) => password.current = e.target.value}></input><br/>
         <button type='button' onClick={submit}>Submit</button>
         <button type='button' onClick={() => {setFunc(<NewAcc/>)}}>Create new account</button>  
       </div>
