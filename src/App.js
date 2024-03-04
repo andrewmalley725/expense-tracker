@@ -320,7 +320,7 @@ function App(){
 
       const body = {
         userid: localStorage.getItem("userId"),
-        accountid: parseInt(accountid.current) || null,
+        accountid: parseInt(accountid.current),
         amount: parseFloat(amount.current),
         description: description.current
       };
@@ -337,7 +337,6 @@ function App(){
         <h4>Add expense</h4>
         Account: <select onChange={(e) => accountid.current = e.target.value}>
           <option selected disabled>Select a category</option>
-          <option value={null}>None</option>
           {
             data.accounts ? data.accounts.map(rec => {
               return(
