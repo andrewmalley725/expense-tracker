@@ -76,6 +76,7 @@ function App(){
     }
     return(
       <div className="form-container">
+        <h4>Expense tracker login</h4>
         <p style={{color: 'red'}}>{msg}</p>
         Username: <input type='text' onChange={(e) => username.current = e.target.value}></input><br/>
         Password: <input type='text' onChange={(e) => password.current = e.target.value}></input><br/>
@@ -129,6 +130,11 @@ function App(){
       setShow(true);
     }
 
+    const viewTransactions = () => {
+      setFunc(<Transactions/>);
+      setShow(true);
+    }
+
     const calculateTotalWeight = () => {
       if (data && data.accounts){
         return data.accounts.reduce((total, rec) => total + rec.weight, 0);
@@ -140,6 +146,11 @@ function App(){
         <div className="categories-container">
           <h2>Welcome {data.user}</h2>
           <h2>Current Total Balance: ${data.total_balance}</h2>
+          <button type='button' onClick={newCategory}>New category</button>
+          <button type='button' onClick={addFunds}>Add funds</button>
+          <button type='button' onClick={addExpense}>Add expense</button>
+          <button type='button' onClick={viewTransactions}>View transactions</button>
+          <button type='button' onClick={logout}>Logout</button>
           <table>
             <thead>
               <tr>
@@ -172,10 +183,6 @@ function App(){
               </tr>
             </tbody>
           </table>
-          <button type='button' onClick={newCategory}>New category</button>
-          <button type='button' onClick={addFunds}>Add funds</button>
-          <button type='button' onClick={addExpense}>Add expense</button>
-          <button type='button' onClick={logout}>Logout</button>
         </div>
       ) : <></>
     );
@@ -213,6 +220,7 @@ function App(){
 
     return(
       <div className="form-container">
+        <h4>New category</h4>
         Category Name: <input type='text' onChange={(e) => {name.current = e.target.value}}></input><br/>
         Weight: %<input type='number' onChange={(e) => {weight.current = e.target.value}}></input><br/>
         Balance: <input type='number' onChange={(e) => {balance.current = e.target.value}}></input><br/>
@@ -268,7 +276,8 @@ function App(){
 
     return(
       <div className='form-container'>
-        Account: <select onChange={(e) => accountid.current = e.target.value}>
+        <h4>Add funds</h4>
+        {/* Account: <select onChange={(e) => accountid.current = e.target.value}>
           <option selected disabled>Select a category to allocate money to (if any)</option>
           <option value={null}>None</option>
           {
@@ -278,7 +287,7 @@ function App(){
               )
             }) : <></>
           }
-        </select><br/>
+        </select><br/> */}
         Amount: $<input type='number' onChange={(e) => {amount.current = e.target.value}}></input><br/>
         Description: <input type='text' onChange={(e) => {description.current = e.target.value}}></input><br/>
         <button type='button' onClick={add}>Add</button>
@@ -333,6 +342,7 @@ function App(){
 
     return(
       <div className='form-container'>
+        <h4>Add expense</h4>
         Account: <select onChange={(e) => accountid.current = e.target.value}>
           <option selected disabled>Select a category</option>
           <option value={null}>None</option>
@@ -350,6 +360,54 @@ function App(){
         <button type='button' onClick={() => setShow(false)}>Close</button>
       </div>
     )
+  }
+
+  function Transactions(){
+    const [data, setData] = useState({});
+    const url = `${api}/userExpenses`;
+
+    useEffect(() => {
+      const uid = localStorage.getItem("userId");
+      const apiKey = localStorage.getItem("apiKey");
+      
+      if (uid){
+        const payload = {
+          headers: {
+            'x-api-key': apiKey
+          }
+        }
+        axios.get(`${url}/${uid}`, payload).then(res => {
+          setData(res.data);
+        });
+    }
+    }, [url]);
+
+    return(
+      <div className='categories-container' style={{overflow: 'scroll', maxHeight: '300px'}}>
+        <button type='button' onClick={() => setShow(false)}>Close</button>
+        <table>
+          <thead>
+            <th>Expense</th>
+            <th>Amount</th>
+            <th>Account</th>
+            <th>Date</th>
+          </thead>
+          <tbody>
+            {
+              data.transactions ? data.transactions.map(rec => (
+                <tr>
+                  <td>{rec.description}</td>
+                  <td>${rec.amount}</td>
+                  <td>{rec.account_name}</td>
+                  <td>{`${new Date(rec.date).getUTCMonth() + 1}-${new Date(rec.date).getUTCDate()}-${new Date(rec.date).getUTCFullYear()}`}</td>
+                </tr>
+              )) : <></>
+            }
+          </tbody>
+        </table>
+      </div>
+    )
+
   }
 
   function Modal({ func }){
