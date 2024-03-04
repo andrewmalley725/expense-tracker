@@ -135,12 +135,6 @@ function App(){
       setShow(true);
     }
 
-    const calculateTotalWeight = () => {
-      if (data && data.accounts){
-        return data.accounts.reduce((total, rec) => total + rec.weight, 0);
-      }
-    };
-
     return (
       data ? (
         <div className="categories-container">
@@ -160,11 +154,11 @@ function App(){
               </tr>
             </thead>
             <tbody>
-              {data.accounts ? data.accounts.map(rec => (
+              {data.accounts ? data.accounts.reverse().map(rec => (
                 <tr>
                   <td>{rec.account_name}</td>
                   <td>{(rec.weight * 100).toFixed(0)}%</td>
-                  <td>${rec.balance.toFixed(2)}</td>
+                  <td>${(rec.balance * 1.0).toFixed(2)}</td>
                 </tr>
               )) 
               : <></>}
@@ -174,10 +168,10 @@ function App(){
                     TOTAL
                   </b>
                 </td>
-                <td><b>{(calculateTotalWeight() * 100).toFixed(0)}%</b></td>
+                <td><b>100%</b></td>
                 <td>
                   <b>
-                    ${(data.total_balance * calculateTotalWeight()).toFixed(2)}
+                    ${(data.total_balance * 1).toFixed(2)}
                   </b>
                 </td>
               </tr>
@@ -191,7 +185,6 @@ function App(){
   function AddCategory(){
     const name = useRef("");
     const weight = useRef(0);
-    const balance = useRef(0);
 
     const url = `${api}/newCategory`;
 
@@ -208,7 +201,7 @@ function App(){
         userid: localStorage.getItem('userId'),
         name: name.current,
         weight: parseFloat(weight.current) / 100,
-        balance: parseFloat(balance.current)
+        balance: null
       };
 
       axios.post(url, body, { headers }).then(res => {
@@ -223,7 +216,6 @@ function App(){
         <h4>New category</h4>
         Category Name: <input type='text' onChange={(e) => {name.current = e.target.value}}></input><br/>
         Weight: %<input type='number' onChange={(e) => {weight.current = e.target.value}}></input><br/>
-        Balance: <input type='number' onChange={(e) => {balance.current = e.target.value}}></input><br/>
         <button type='button' onClick={add}>Add</button>
         <button type='button' onClick={() => setShow(false)}>Close</button>
       </div>
@@ -231,27 +223,27 @@ function App(){
   }
 
   function Payday(){
-    const [data, setData] = useState({});
+    //const [data, setData] = useState({});
     const accountid = useRef(null);
     const amount = useRef(0);
     const description = useRef("");
     const url = `${api}/payday`;
 
-    useEffect(() => {
-      const uid = localStorage.getItem("userId");
-      const apiKey = localStorage.getItem("apiKey");
+    // useEffect(() => {
+    //   const uid = localStorage.getItem("userId");
+    //   const apiKey = localStorage.getItem("apiKey");
       
-      if (uid){
-        const payload = {
-          headers: {
-            'x-api-key': apiKey
-          }
-        }
-        axios.get(`${api}/categories/${uid}`, payload).then(res => {
-          setData(res.data);
-        });
-    }
-    }, []);
+    //   if (uid){
+    //     const payload = {
+    //       headers: {
+    //         'x-api-key': apiKey
+    //       }
+    //     }
+    //     axios.get(`${api}/categories/${uid}`, payload).then(res => {
+    //       setData(res.data);
+    //     });
+    // }
+    // }, []);
 
     const add = () => {
       const apiKey = localStorage.getItem("apiKey");
