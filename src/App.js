@@ -2,13 +2,13 @@ import './styles.css';
 import axios from 'axios';
 import { useState, useRef, useEffect } from 'react';
 
-localStorage.clear();
+//localStorage.clear();
 
 function App(){
   const api = 'https://sample-project-667a4.web.app/api';
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(localStorage.getItem('userId') ? false : true);
   const [func, setFunc] = useState(<Login/>);
-  const [login, setLogin] = useState(false);
+  const [login, setLogin] = useState(localStorage.getItem('userId') ? true : false);
 
   function NewAcc(){
     const username = useRef("");
@@ -152,8 +152,8 @@ function App(){
               {data.accounts ? data.accounts.map(rec => (
                 <tr>
                   <td>{rec.account_name}</td>
-                  <td>{rec.weight * 100}%</td>
-                  <td>${rec.balance}</td>
+                  <td>{(rec.weight * 100).toFixed(0)}%</td>
+                  <td>${rec.balance.toFixed(2)}</td>
                 </tr>
               )) 
               : <></>}
@@ -166,7 +166,7 @@ function App(){
                 <td><b>{(calculateTotalWeight() * 100).toFixed(0)}%</b></td>
                 <td>
                   <b>
-                    ${(data.total_balance * calculateTotalWeight()).toFixed(0)}
+                    ${(data.total_balance * calculateTotalWeight()).toFixed(2)}
                   </b>
                 </td>
               </tr>
