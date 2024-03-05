@@ -172,7 +172,7 @@ function App(){
                   <td>{rec.account_name}</td>
                   <td>{(rec.weight * 100).toFixed(0)}%</td>
                   <td>${(rec.balance * 1.0).toFixed(2)}</td>
-                  {rec.account_name !== 'Unallocated funds' ? <td><button type='button' onClick={() => del(rec)}>DELETE</button></td> : <></>}
+                  {rec.account_name !== 'Unallocated funds' ? <td><button type='button' onClick={() => del(rec)}>DELETE</button></td> : <td></td>}
                 </tr>
               )) 
               : <></>}
