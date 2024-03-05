@@ -135,6 +135,18 @@ function App(){
       setShow(true);
     }
 
+    function del(rec){
+      const apiKey = localStorage.getItem('apiKey');
+      const payload = {
+        headers: {
+          'x-api-key': apiKey
+        }
+      }
+      axios.delete(`${api}/deleteCategory/${rec.accountid}`, payload).then((res) => {
+        window.location.reload();
+      })
+    }
+
     return (
       data ? (
         <div className="categories-container">
@@ -151,6 +163,7 @@ function App(){
                 <th>Category</th>
                 <th>Weight</th>
                 <th>Balance</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -159,6 +172,7 @@ function App(){
                   <td>{rec.account_name}</td>
                   <td>{(rec.weight * 100).toFixed(0)}%</td>
                   <td>${(rec.balance * 1.0).toFixed(2)}</td>
+                  {rec.account_name !== 'Unallocated funds' ? <td><button type='button' onClick={() => del(rec)}>DELETE</button></td> : <></>}
                 </tr>
               )) 
               : <></>}
@@ -174,6 +188,7 @@ function App(){
                     ${(data.total_balance * 1).toFixed(2)}
                   </b>
                 </td>
+                <td></td>
               </tr>
             </tbody>
           </table>
@@ -373,27 +388,40 @@ function App(){
     }
     }, [url]);
 
+    const getSum = () => {
+      if (data.transactions && data.transactions.length > 0) {
+        return data.transactions.reduce((sum, rec) => sum + rec.amount, 0).toFixed(2);
+      }
+      return 0;
+    };
+
     return(
       <div className='categories-container' style={{overflow: 'scroll', maxHeight: '300px'}}>
         <button type='button' onClick={() => setShow(false)}>Close</button>
         <table>
           <thead>
             <th>Expense</th>
-            <th>Amount</th>
-            <th>Account</th>
             <th>Date</th>
+            <th>Account</th>
+            <th>Amount</th>
           </thead>
           <tbody>
             {
               data.transactions ? data.transactions.map(rec => (
                 <tr>
                   <td>{rec.description}</td>
-                  <td>${rec.amount}</td>
-                  <td>{rec.account_name}</td>
                   <td>{`${new Date(rec.date).getUTCMonth() + 1}-${new Date(rec.date).getUTCDate()}-${new Date(rec.date).getUTCFullYear()}`}</td>
+                  <td>{rec.account_name}</td>
+                  <td>${rec.amount}</td>
                 </tr>
               )) : <></>
             }
+            <tr>
+              <td><b>TOTAL</b></td>
+              <td></td>
+              <td></td>
+              <td><b>${getSum()}</b></td>
+            </tr>
           </tbody>
         </table>
       </div>
