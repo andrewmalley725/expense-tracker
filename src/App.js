@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import './styles.css';
 import axios from 'axios';
 import { useState, useRef, useEffect } from 'react';
@@ -6,6 +7,7 @@ import { useState, useRef, useEffect } from 'react';
 
 function App(){
   const api = 'https://sample-project-667a4.web.app/api';
+  //const api = 'http://localhost:5002/api';
   const [show, setShow] = useState(localStorage.getItem('userId') ? false : true);
   const [func, setFunc] = useState(<Login/>);
   const [login, setLogin] = useState(localStorage.getItem('userId') ? true : false);
@@ -135,6 +137,11 @@ function App(){
       setShow(true);
     }
 
+    const viewIncome = () => {
+      setFunc(<Paychecks/>);
+      setShow(true);
+    }
+
     function del(rec){
       const apiKey = localStorage.getItem('apiKey');
       const payload = {
@@ -156,6 +163,7 @@ function App(){
           <button type='button' onClick={addFunds}>Add funds</button>
           <button type='button' onClick={addExpense}>Add expense</button>
           <button type='button' onClick={viewTransactions}>View transactions</button>
+          <button type='button' onClick={viewIncome}>View income</button>
           <button type='button' onClick={logout}>Logout</button>
           <table>
             <thead>
@@ -370,23 +378,46 @@ function App(){
 
   function Transactions(){
     const [data, setData] = useState({});
-    const url = `${api}/userExpenses`;
+    const [desc, setDesc] = useState(true);
+    const [filter, setFilter] = useState("");
+    
 
     useEffect(() => {
       const uid = localStorage.getItem("userId");
       const apiKey = localStorage.getItem("apiKey");
       
       if (uid){
+        const url = `${api}/userExpenses/${uid}?desc=${desc}&filter=${filter}`;
         const payload = {
           headers: {
             'x-api-key': apiKey
           }
         }
-        axios.get(`${url}/${uid}`, payload).then(res => {
+        axios.get(url, payload).then(res => {
           setData(res.data);
         });
     }
-    }, [url]);
+    }, [desc, filter]);
+
+    const orderDescription = () => {
+      setFilter("description");
+      setDesc(!desc);
+    };
+
+    const orderDate = () => {
+      setFilter("date");
+      setDesc(!desc);
+    };
+
+    const orderAccount = () => {
+      setFilter("account");
+      setDesc(!desc);
+    };
+
+    const orderAmount = () => {
+      setFilter("amount");
+      setDesc(!desc);
+    };
 
     const getSum = () => {
       if (data.transactions && data.transactions.length > 0) {
@@ -397,13 +428,14 @@ function App(){
 
     return(
       <div className='categories-container' style={{overflow: 'scroll', maxHeight: '300px'}}>
-        <button type='button' onClick={() => setShow(false)}>Close</button>
+        <button type='button' onClick={() => {setShow(false); setFilter(""); setDesc(true)}}>Close</button>
+        <p>(Click to order by)</p>
         <table>
           <thead>
-            <th>Expense</th>
-            <th>Date</th>
-            <th>Account</th>
-            <th>Amount</th>
+            <th><button onClick={orderDescription}>Expense</button></th>
+            <th><button onClick={orderDate}>Date</button></th>
+            <th><button onClick={orderAccount}>Account</button></th>
+            <th><button onClick={orderAmount}>Amount</button></th>
           </thead>
           <tbody>
             {
@@ -426,7 +458,65 @@ function App(){
         </table>
       </div>
     )
+  }
 
+  function Paychecks(){
+    const [data, setData] = useState({});
+
+
+    useEffect(() => {
+      const uid = localStorage.getItem("userId");
+      const apiKey = localStorage.getItem("apiKey");
+      
+      if (uid){
+        const url = `${api}/paychecks/${uid}`;
+        const payload = {
+          headers: {
+            'x-api-key': apiKey
+          }
+        }
+        axios.get(url, payload).then(res => {
+          setData(res.data)
+        });
+    }
+    }, []);
+
+    const getSum = () => {
+      if (data.paychecks && data.paychecks.length > 0) {
+        return data.paychecks.reduce((sum, rec) => sum + rec.amount, 0).toFixed(2);
+      }
+      return 0;
+    };
+
+    return(
+      <div className='categories-container' style={{overflow: 'scroll', maxHeight: '300px'}}>
+        <button type='button' onClick={() => setShow(false)}>Close</button>
+        {/* <p>(Click to order by)</p> */}
+        <table>
+          <thead>
+            <th><button>Description</button></th>
+            <th><button>Date</button></th>
+            <th><button>Amount</button></th>
+          </thead>
+          <tbody>
+            {
+              data.paychecks ? data.paychecks.map(rec => (
+                <tr>
+                  <td>{rec.description}</td>
+                  <td>{`${new Date(rec.date).getUTCMonth() + 1}-${new Date(rec.date).getUTCDate()}-${new Date(rec.date).getUTCFullYear()}`}</td>
+                  <td>${rec.amount}</td>
+                </tr>
+              )) : <></>
+            }
+            <tr>
+              <td><b>TOTAL</b></td>
+              <td></td>
+              <td><b>${getSum()}</b></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    )
   }
 
   function Modal({ func }){
