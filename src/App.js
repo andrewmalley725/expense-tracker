@@ -20,6 +20,10 @@ function App(){
     const email = useRef("");
 
     const submit = () => {
+
+      setShow(false);
+      setLogin(true);
+
       const body = {
         userName: username.current,
         first: firstname.current,
@@ -33,8 +37,7 @@ function App(){
         localStorage.setItem("username", res.data.record.username);
         localStorage.setItem("name", `${res.data.record.firstname} ${res.data.record.lastname}`);
         localStorage.setItem("apiKey", res.data.apiKey);
-        setShow(false);
-        setLogin(true);
+        window.location.reload();
       })
       .catch(error => console.log(error));
     }
@@ -107,22 +110,24 @@ function App(){
     }
     }, []);
 
-    
-
     const newCategory = () => {
       setFunc(<AddCategory/>);
       setShow(true);
+      setLogin(false);
       //console.log(show);
-    }
+  }
 
     const addFunds = () => {
       setFunc(<Payday/>);
       setShow(true);
+      setLogin(false);
+
     }
 
     const addExpense = () => {
       setFunc(<Expense/>);
       setShow(true);
+      setLogin(false);
     }
 
     const logout = () => {
@@ -135,11 +140,13 @@ function App(){
     const viewTransactions = () => {
       setFunc(<Transactions/>);
       setShow(true);
+      setLogin(false);
     }
 
     const viewIncome = () => {
       setFunc(<Paychecks/>);
       setShow(true);
+      setLogin(false);
     }
 
     function del(rec){
@@ -155,7 +162,7 @@ function App(){
     }
 
     return (
-      data ? (
+      data && data.accounts ? (
         <div className="categories-container">
           <h2>Welcome {data.user}</h2>
           <h2>Current Total Balance: ${data.total_balance}</h2>
@@ -201,7 +208,7 @@ function App(){
             </tbody>
           </table>
         </div>
-      ) : <></>
+      ) : localStorage.getItem('userId') ? <h1>Loading your data {localStorage.getItem('name')}</h1> : <></>
     );
   }
 
@@ -230,6 +237,7 @@ function App(){
       axios.post(url, body, { headers }).then(res => {
         console.log('added');
         setShow(false);
+        setLogin(true);
       })
       .catch(error => {console.log(error)});
     }
@@ -240,7 +248,7 @@ function App(){
         Category Name: <input type='text' onChange={(e) => {name.current = e.target.value}}></input><br/>
         Weight: %<input type='number' onChange={(e) => {weight.current = e.target.value}}></input><br/>
         <button type='button' onClick={add}>Add</button>
-        <button type='button' onClick={() => setShow(false)}>Close</button>
+        <button type='button' onClick={() => {setShow(false); setLogin(true)}}>Close</button>
       </div>
     )
   }
@@ -285,6 +293,7 @@ function App(){
       axios.post(url, body, { headers }).then(res => {
         console.log('added');
         setShow(false);
+        setLogin(true);
       })
       .catch(error => {console.log(error)});
     }
@@ -306,7 +315,7 @@ function App(){
         Amount: $<input type='number' onChange={(e) => {amount.current = e.target.value}}></input><br/>
         Description: <input type='text' onChange={(e) => {description.current = e.target.value}}></input><br/>
         <button type='button' onClick={add}>Add</button>
-        <button type='button' onClick={() => setShow(false)}>Close</button>
+        <button type='button' onClick={() => {setShow(false); setLogin(true)}}>Close</button>
       </div>
     )
   }
@@ -351,6 +360,7 @@ function App(){
       axios.post(url, body, { headers }).then(res => {
         console.log('added');
         setShow(false);
+        setLogin(true);
       })
       .catch(error => {console.log(error)});
     }
@@ -371,7 +381,7 @@ function App(){
         Amount: $<input type='number' onChange={(e) => {amount.current = e.target.value}}></input><br/>
         Description: <input type='text' onChange={(e) => {description.current = e.target.value}}></input><br/>
         <button type='button' onClick={add}>Add</button>
-        <button type='button' onClick={() => setShow(false)}>Close</button>
+        <button type='button' onClick={() => {setShow(false); setLogin(true)}}>Close</button>
       </div>
     )
   }
@@ -428,7 +438,7 @@ function App(){
 
     return(
       <div className='categories-container' style={{overflow: 'scroll', maxHeight: '300px'}}>
-        <button type='button' onClick={() => {setShow(false); setFilter(""); setDesc(true)}}>Close</button>
+        <button type='button' onClick={() => {setShow(false); setLogin(true); setFilter(""); setDesc(true)}}>Close</button>
         <p>(Click to order by)</p>
         <table>
           <thead>
@@ -490,7 +500,7 @@ function App(){
 
     return(
       <div className='categories-container' style={{overflow: 'scroll', maxHeight: '300px'}}>
-        <button type='button' onClick={() => setShow(false)}>Close</button>
+        <button type='button' onClick={() => {setShow(false); setLogin(true)}}>Close</button>
         {/* <p>(Click to order by)</p> */}
         <table>
           <thead>
