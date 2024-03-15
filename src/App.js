@@ -1,23 +1,20 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import './styles.css';
 import axios from 'axios';
-import { useState, useRef, useEffect } from 'react';
-
-//localStorage.clear();
+import { useState, useRef } from 'react';
 
 function App(){
-  const api = 'https://sample-project-667a4.web.app/api';
-  //const api = 'http://localhost:5002/api';
-  const [show, setShow] = useState(localStorage.getItem('userId') ? false : true);
+  const api = 'https://finance-app-flask-afh4ecdnpq-uc.a.run.app';
+  //const api = 'http://localhost:5000';
+  const [show, setShow] = useState(localStorage.getItem('user') ? false : true);
   const [func, setFunc] = useState(<Login/>);
-  const [login, setLogin] = useState(localStorage.getItem('userId') ? true : false);
+  const [login, setLogin] = useState(localStorage.getItem('user') ? true : false);
 
   function NewAcc(){
     const username = useRef("");
     const password = useRef("");
     const firstname = useRef("");
     const lastname = useRef("");
-    const email = useRef("");
 
     const submit = () => {
 
@@ -25,17 +22,14 @@ function App(){
       setLogin(true);
 
       const body = {
-        userName: username.current,
-        first: firstname.current,
-        last: lastname.current,
-        pass: password.current,
-        email: email.current
+        username: username.current,
+        firstname: firstname.current,
+        lastname: lastname.current,
+        password: password.current,
       };
 
-      axios.post(`${api}/newUser`, body).then(res => {
-        localStorage.setItem("userId", res.data.record.userid);
-        localStorage.setItem("username", res.data.record.username);
-        localStorage.setItem("name", `${res.data.record.firstname} ${res.data.record.lastname}`);
+      axios.post(`${api}/addUser`, body).then(res => {
+        localStorage.setItem('user', JSON.stringify(res.data.user));
         localStorage.setItem("apiKey", res.data.apiKey);
         window.location.reload();
       })
@@ -46,7 +40,6 @@ function App(){
       <div className="form-container">
         First Name: <input type='text' onChange={(e) => firstname.current = e.target.value}></input><br/>
         Last Name: <input type='text' onChange={(e) => lastname.current = e.target.value}></input><br/>
-        Email: <input type='text' onChange={(e) => email.current = e.target.value}></input><br/>
         Username: <input type='text' onChange={(e) => username.current = e.target.value}></input><br/>
         Password: <input type='password' onChange={(e) => password.current = e.target.value}></input><br/>
         <button type='button' onClick={submit}>Submit</button>  
@@ -66,10 +59,8 @@ function App(){
         password: password.current
       };
       axios.post(`${api}/authenticate`, body).then(res => {
-        if (res.data.status === 'success'){
-          localStorage.setItem("userId", res.data.record.userid);
-          localStorage.setItem("username", res.data.record.username);
-          localStorage.setItem("name", `${res.data.record.firstname} ${res.data.record.lastname}`);
+        if (res.data.status === 'successfully logged in'){
+          localStorage.setItem('user', JSON.stringify(res.data.user));
           localStorage.setItem("apiKey", res.data.apiKey);
           setShow(false);
           setLogin(true);
@@ -92,42 +83,22 @@ function App(){
   }
 
   function Categories(){
-    const [data, setData] = useState({});
-
-    useEffect(() => {
-      const uid = localStorage.getItem("userId");
-      const apiKey = localStorage.getItem("apiKey");
-
-      if (uid){
-        const payload = {
-          headers: {
-            'x-api-key': apiKey
-          }
-        }
-        axios.get(`${api}/categories/${uid}`, payload).then(res => {
-          setData(res.data);
-        });
-    }
-    }, []);
+    const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : 'error getting data';
 
     const newCategory = () => {
       setFunc(<AddCategory/>);
       setShow(true);
-      setLogin(false);
       //console.log(show);
   }
 
     const addFunds = () => {
       setFunc(<Payday/>);
       setShow(true);
-      setLogin(false);
-
     }
 
     const addExpense = () => {
       setFunc(<Expense/>);
       setShow(true);
-      setLogin(false);
     }
 
     const logout = () => {
@@ -140,13 +111,11 @@ function App(){
     const viewTransactions = () => {
       setFunc(<Transactions/>);
       setShow(true);
-      setLogin(false);
     }
 
     const viewIncome = () => {
       setFunc(<Paychecks/>);
       setShow(true);
-      setLogin(false);
     }
 
     function del(rec){
@@ -156,16 +125,17 @@ function App(){
           'x-api-key': apiKey
         }
       }
-      axios.delete(`${api}/deleteCategory/${rec.accountid}`, payload).then((res) => {
+      axios.delete(`${api}/deleteCategory/${user._id}?category=${rec.account_name}`, payload).then((res) => {
+        localStorage.setItem("user", JSON.stringify(res.data.user));
         window.location.reload();
       })
     }
 
     return (
-      data && data.accounts ? (
+      user && user.accounts ? (
         <div className="categories-container">
-          <h2>Welcome {data.user}</h2>
-          <h2>Current Total Balance: ${data.total_balance}</h2>
+          <h2>Welcome {`${user.firstname} ${user.lastname}`}</h2>
+          <h2>Current Total Balance: ${user.balance.toFixed(2)}</h2>
           <button type='button' onClick={newCategory}>New category</button>
           <button type='button' onClick={addFunds}>Add funds</button>
           <button type='button' onClick={addExpense}>Add expense</button>
@@ -182,10 +152,10 @@ function App(){
               </tr>
             </thead>
             <tbody>
-              {data.accounts ? data.accounts.reverse().map(rec => (
+              {user.accounts ? user.accounts.reverse().map(rec => (
                 <tr>
                   <td>{rec.account_name}</td>
-                  <td>{(rec.weight * 100).toFixed(0)}%</td>
+                  <td>{(rec.weight * 100).toFixed(1)}%</td>
                   <td>${(rec.balance * 1.0).toFixed(2)}</td>
                   {rec.account_name !== 'Unallocated funds' ? <td><button type='button' onClick={() => del(rec)}>DELETE</button></td> : <td></td>}
                 </tr>
@@ -200,7 +170,7 @@ function App(){
                 <td><b>100%</b></td>
                 <td>
                   <b>
-                    ${(data.total_balance * 1).toFixed(2)}
+                    ${(user.balance * 1).toFixed(2)}
                   </b>
                 </td>
                 <td></td>
@@ -208,36 +178,33 @@ function App(){
             </tbody>
           </table>
         </div>
-      ) : localStorage.getItem('userId') ? <h1>Loading your data {localStorage.getItem('name')}</h1> : <></>
+      ) : localStorage.getItem('user') ? <h1>Loading your data {`${user.firstname} ${user.lastname}`}</h1> : <></>
     );
   }
 
   function AddCategory(){
     const name = useRef("");
     const weight = useRef(0);
+    const apiKey = localStorage.getItem("apiKey");
+    const user = JSON.parse(localStorage.getItem('user'));
 
-    const url = `${api}/newCategory`;
-
-    // console.log(show);
+    const url = `${api}/addCategory/${user._id}`;
 
     const add = () => {
-      const apiKey = localStorage.getItem("apiKey");
 
       const headers = {
         'x-api-key': apiKey
       }
 
       const body = {
-        userid: localStorage.getItem('userId'),
-        name: name.current,
+        account_name: name.current,
         weight: parseFloat(weight.current) / 100,
-        balance: null
       };
 
       axios.post(url, body, { headers }).then(res => {
         console.log('added');
-        setShow(false);
-        setLogin(true);
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+        window.location.reload();
       })
       .catch(error => {console.log(error)});
     }
@@ -254,46 +221,27 @@ function App(){
   }
 
   function Payday(){
-    //const [data, setData] = useState({});
-    const accountid = useRef(null);
     const amount = useRef(0);
     const description = useRef("");
-    const url = `${api}/payday`;
-
-    // useEffect(() => {
-    //   const uid = localStorage.getItem("userId");
-    //   const apiKey = localStorage.getItem("apiKey");
-      
-    //   if (uid){
-    //     const payload = {
-    //       headers: {
-    //         'x-api-key': apiKey
-    //       }
-    //     }
-    //     axios.get(`${api}/categories/${uid}`, payload).then(res => {
-    //       setData(res.data);
-    //     });
-    // }
-    // }, []);
+    const user = JSON.parse(localStorage.getItem('user'));
+    const apiKey = localStorage.getItem("apiKey");
+    const url = `${api}/addPayday/${user._id}`;
 
     const add = () => {
-      const apiKey = localStorage.getItem("apiKey");
-
+      
       const headers = {
         'x-api-key': apiKey
       }
 
       const body = {
-        userid: localStorage.getItem("userId"),
-        accountid: parseInt(accountid.current) || null,
         amount: parseFloat(amount.current),
         description: description.current
       };
 
       axios.post(url, body, { headers }).then(res => {
         console.log('added');
-        setShow(false);
-        setLogin(true);
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+        window.location.reload();
       })
       .catch(error => {console.log(error)});
     }
@@ -301,17 +249,6 @@ function App(){
     return(
       <div className='form-container'>
         <h4>Add funds</h4>
-        {/* Account: <select onChange={(e) => accountid.current = e.target.value}>
-          <option selected disabled>Select a category to allocate money to (if any)</option>
-          <option value={null}>None</option>
-          {
-            data.accounts ? data.accounts.map(rec => {
-              return(
-                <option value={rec.accountid}>{rec.account_name}</option>
-              )
-            }) : <></>
-          }
-        </select><br/> */}
         Amount: $<input type='number' onChange={(e) => {amount.current = e.target.value}}></input><br/>
         Description: <input type='text' onChange={(e) => {description.current = e.target.value}}></input><br/>
         <button type='button' onClick={add}>Add</button>
@@ -321,46 +258,29 @@ function App(){
   }
 
   function Expense(){
-    const [data, setData] = useState({});
-    const accountid = useRef(null);
+    const account = useRef(null);
     const amount = useRef(0);
     const description = useRef("");
-    const url = `${api}/newExpense`;
-
-    useEffect(() => {
-      const uid = localStorage.getItem("userId");
-      const apiKey = localStorage.getItem("apiKey");
-      
-      if (uid){
-        const payload = {
-          headers: {
-            'x-api-key': apiKey
-          }
-        }
-        axios.get(`${api}/categories/${uid}`, payload).then(res => {
-          setData(res.data);
-        });
-    }
-    }, []);
+    const user = JSON.parse(localStorage.getItem("user"));
+    const apiKey = localStorage.getItem("apiKey");
+    const url = `${api}/addTransaction/${user._id}`;
 
     const add = () => {
-      const apiKey = localStorage.getItem("apiKey");
 
       const headers = {
         'x-api-key': apiKey
       }
 
       const body = {
-        userid: localStorage.getItem("userId"),
-        accountid: parseInt(accountid.current),
+        account_name: account.current,
         amount: parseFloat(amount.current),
         description: description.current
       };
 
       axios.post(url, body, { headers }).then(res => {
-        console.log('added');
-        setShow(false);
-        setLogin(true);
+        console.log(res.data);
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+        window.location.reload();
       })
       .catch(error => {console.log(error)});
     }
@@ -368,12 +288,12 @@ function App(){
     return(
       <div className='form-container'>
         <h4>Add expense</h4>
-        Account: <select onChange={(e) => accountid.current = e.target.value}>
+        Account: <select onChange={(e) => account.current = e.target.value}>
           <option selected disabled>Select a category</option>
           {
-            data.accounts ? data.accounts.map(rec => {
+            user.accounts ? user.accounts.map(rec => {
               return(
-                <option value={rec.accountid}>{rec.account_name}</option>
+                <option value={rec.account_name}>{rec.account_name}</option>
               )
             }) : <></>
           }
@@ -387,58 +307,39 @@ function App(){
   }
 
   function Transactions(){
-    const [data, setData] = useState({});
     const [desc, setDesc] = useState(true);
-    const [filter, setFilter] = useState("");
-    
-
-    useEffect(() => {
-      const uid = localStorage.getItem("userId");
-      const apiKey = localStorage.getItem("apiKey");
-      
-      if (uid){
-        const url = `${api}/userExpenses/${uid}?desc=${desc}&filter=${filter}`;
-        const payload = {
-          headers: {
-            'x-api-key': apiKey
-          }
-        }
-        axios.get(url, payload).then(res => {
-          setData(res.data);
-        });
-    }
-    }, [desc, filter]);
+    const user = JSON.parse(localStorage.getItem("user"));
 
     const orderDescription = () => {
-      setFilter("description");
       setDesc(!desc);
     };
 
     const orderDate = () => {
-      setFilter("date");
       setDesc(!desc);
     };
 
     const orderAccount = () => {
-      setFilter("account");
       setDesc(!desc);
     };
 
     const orderAmount = () => {
-      setFilter("amount");
       setDesc(!desc);
     };
 
     const getSum = () => {
-      if (data.transactions && data.transactions.length > 0) {
-        return data.transactions.reduce((sum, rec) => sum + rec.amount, 0).toFixed(2);
+      if (user.transactions && user.transactions.length > 0) {
+        let total = 0;
+        for (let i of user.transactions){
+          total += i.amount;
+        }
+        return total;
       }
       return 0;
     };
 
     return(
       <div className='categories-container' style={{overflow: 'scroll', maxHeight: '300px'}}>
-        <button type='button' onClick={() => {setShow(false); setLogin(true); setFilter(""); setDesc(true)}}>Close</button>
+        <button type='button' onClick={() => {setShow(false); setLogin(true); setDesc(true)}}>Close</button>
         <p>(Click to order by)</p>
         <table>
           <thead>
@@ -449,10 +350,10 @@ function App(){
           </thead>
           <tbody>
             {
-              data.transactions ? data.transactions.map(rec => (
+              user.transactions ? user.transactions.map(rec => (
                 <tr>
                   <td>{rec.description}</td>
-                  <td>{`${new Date(rec.date).getUTCMonth() + 1}-${new Date(rec.date).getUTCDate()}-${new Date(rec.date).getUTCFullYear()}`}</td>
+                  <td>{new Date(rec.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</td>
                   <td>{rec.account_name}</td>
                   <td>${rec.amount}</td>
                 </tr>
@@ -471,29 +372,15 @@ function App(){
   }
 
   function Paychecks(){
-    const [data, setData] = useState({});
-
-
-    useEffect(() => {
-      const uid = localStorage.getItem("userId");
-      const apiKey = localStorage.getItem("apiKey");
-      
-      if (uid){
-        const url = `${api}/paychecks/${uid}`;
-        const payload = {
-          headers: {
-            'x-api-key': apiKey
-          }
-        }
-        axios.get(url, payload).then(res => {
-          setData(res.data)
-        });
-    }
-    }, []);
+    const user = JSON.parse(localStorage.getItem("user"));
 
     const getSum = () => {
-      if (data.paychecks && data.paychecks.length > 0) {
-        return data.paychecks.reduce((sum, rec) => sum + rec.amount, 0).toFixed(2);
+      if (user.income && user.income.length > 0) {
+        let total = 0;
+        for (let i of user.income){
+          total += i.amount;
+        }
+        return total;
       }
       return 0;
     };
@@ -510,10 +397,10 @@ function App(){
           </thead>
           <tbody>
             {
-              data.paychecks ? data.paychecks.map(rec => (
+              user.income ? user.income.map(rec => (
                 <tr>
                   <td>{rec.description}</td>
-                  <td>{`${new Date(rec.date).getUTCMonth() + 1}-${new Date(rec.date).getUTCDate()}-${new Date(rec.date).getUTCFullYear()}`}</td>
+                  <td>{new Date(rec.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</td>
                   <td>${rec.amount}</td>
                 </tr>
               )) : <></>
