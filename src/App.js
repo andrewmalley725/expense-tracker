@@ -10,6 +10,22 @@ function App(){
   const [func, setFunc] = useState(<Login/>);
   const [login, setLogin] = useState(localStorage.getItem('user') ? true : false);
 
+  // if (localStorage.getItem('user')){
+  //   const user = JSON.parse(localStorage.getItem('user'));
+  //   const apiKey = localStorage.getItem('apiKey');
+  //   const _id = user._id;
+  //   const payload = {
+  //     headers: {
+  //       'x-api-key': apiKey
+  //     }
+  //   };
+
+  //   axios.get(`${api}/data/${_id}`, payload).then(res => {
+  //     localStorage.setItem('user', JSON.stringify(res.data.user));
+  //     window.location.reload();
+  //   })
+  // }
+
   function NewAcc(){
     const username = useRef("");
     const password = useRef("");
@@ -19,7 +35,6 @@ function App(){
     const submit = () => {
 
       setShow(false);
-      setLogin(true);
 
       const body = {
         username: username.current,
@@ -31,6 +46,7 @@ function App(){
       axios.post(`${api}/addUser`, body).then(res => {
         localStorage.setItem('user', JSON.stringify(res.data.user));
         localStorage.setItem("apiKey", res.data.apiKey);
+        setLogin(true);
         window.location.reload();
       })
       .catch(error => console.log(error));
@@ -58,12 +74,13 @@ function App(){
         username: username.current,
         password: password.current
       };
+      setShow(false);
       axios.post(`${api}/authenticate`, body).then(res => {
         if (res.data.status === 'successfully logged in'){
+          setLogin(true);
           localStorage.setItem('user', JSON.stringify(res.data.user));
           localStorage.setItem("apiKey", res.data.apiKey);
-          setShow(false);
-          setLogin(true);
+          window.location.reload();
         }
         else {
           setMsg(res.data.status);
@@ -83,7 +100,7 @@ function App(){
   }
 
   function Categories(){
-    const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : 'error getting data';
+    const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
 
     const newCategory = () => {
       setFunc(<AddCategory/>);
@@ -178,7 +195,7 @@ function App(){
             </tbody>
           </table>
         </div>
-      ) : localStorage.getItem('user') ? <h1>Loading your data {`${user.firstname} ${user.lastname}`}</h1> : <></>
+      ) : !login ? <h1>Loading Data...</h1> : <></>
     );
   }
 
@@ -271,25 +288,31 @@ function App(){
         'x-api-key': apiKey
       }
 
-      const body = {
-        account_name: account.current,
-        amount: parseFloat(amount.current),
-        description: description.current
-      };
+      if (account.current === null){
+        alert('Please select an account!')
+      }
 
-      axios.post(url, body, { headers }).then(res => {
-        console.log(res.data);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-        window.location.reload();
-      })
-      .catch(error => {console.log(error)});
+      else {
+        const body = {
+          account_name: account.current ? account.current : 'Unallocated funds',
+          amount: parseFloat(amount.current),
+          description: description.current
+        };
+
+        axios.post(url, body, { headers }).then(res => {
+          console.log(res.data);
+          localStorage.setItem("user", JSON.stringify(res.data.user));
+          window.location.reload();
+        })
+        .catch(error => {console.log(error)});
+      }
     }
 
     return(
       <div className='form-container'>
         <h4>Add expense</h4>
         Account: <select onChange={(e) => account.current = e.target.value}>
-          <option selected disabled>Select a category</option>
+          <option selected disabled value={null}>Select a category</option>
           {
             user.accounts ? user.accounts.map(rec => {
               return(
