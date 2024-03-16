@@ -334,21 +334,50 @@ function App(){
   function Transactions(){
     const [desc, setDesc] = useState(true);
     const user = JSON.parse(localStorage.getItem("user"));
+    const [transactions, setTransactions] = useState(user.transactions);
 
     const orderDescription = () => {
       setDesc(!desc);
+      let orderedTransactions = transactions.sort(function(a, b) {
+        if (desc)
+          return a.description.localeCompare(b.description);
+        else
+          return b.description.localeCompare(a.description);
+      });
+      setTransactions(orderedTransactions);
     };
 
     const orderDate = () => {
       setDesc(!desc);
+      let orderedTransactions = transactions.sort(function(a, b) {
+        if (desc)
+          return new Date(a.date) - new Date(b.date)
+        else
+          return new Date(b.date)  - new Date(a.date)
+      });
+      setTransactions(orderedTransactions);
     };
 
     const orderAccount = () => {
       setDesc(!desc);
+      let orderedTransactions = transactions.sort(function(a, b) {
+        if (desc)
+          return a.account_name.localeCompare(b.account_name);
+        else
+          return b.account_name.localeCompare(a.account_name);
+      });
+      setTransactions(orderedTransactions);
     };
 
     const orderAmount = () => {
       setDesc(!desc);
+      let orderedTransactions = transactions.sort(function(a, b) {
+        if (desc)
+          return a.amount - b.amount
+        else
+          return b.amount  -a.amount
+      });
+      setTransactions(orderedTransactions);
     };
 
     const getSum = () => {
@@ -375,7 +404,7 @@ function App(){
           </thead>
           <tbody>
             {
-              user.transactions ? user.transactions.map(rec => (
+              transactions ? transactions.map(rec => (
                 <tr>
                   <td>{rec.description}</td>
                   <td>{new Date(rec.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</td>
@@ -398,6 +427,41 @@ function App(){
 
   function Paychecks(){
     const user = JSON.parse(localStorage.getItem("user"));
+    const [desc, setDesc] = useState(true);
+    const [income, setIncome] = useState(user.income);
+
+    const orderDescription = () => {
+      setDesc(!desc);
+      let orderedTransactions = income.sort(function(a, b) {
+        if (desc)
+          return a.description.localeCompare(b.description);
+        else
+          return b.description.localeCompare(a.description);
+      });
+      setIncome(orderedTransactions);
+    };
+
+    const orderDate = () => {
+      setDesc(!desc);
+      let orderedTransactions = income.sort(function(a, b) {
+        if (desc)
+          return new Date(a.date) - new Date(b.date)
+        else
+          return new Date(b.date)  - new Date(a.date)
+      });
+      setIncome(orderedTransactions);
+    };
+
+    const orderAmount = () => {
+      setDesc(!desc);
+      let orderedTransactions = income.sort(function(a, b) {
+        if (desc)
+          return a.amount - b.amount
+        else
+          return b.amount  -a.amount
+      });
+      setIncome(orderedTransactions);
+    };
 
     const getSum = () => {
       if (user.income && user.income.length > 0) {
@@ -413,16 +477,16 @@ function App(){
     return(
       <div className='categories-container' style={{overflow: 'scroll', maxHeight: '300px'}}>
         <button type='button' onClick={() => {setShow(false); setLogin(true)}}>Close</button>
-        {/* <p>(Click to order by)</p> */}
+        <p>(Click to order by)</p>
         <table>
           <thead>
-            <th><button>Description</button></th>
-            <th><button>Date</button></th>
-            <th><button>Amount</button></th>
+            <th><button onClick={orderDescription}>Description</button></th>
+            <th><button onClick={orderDate}>Date</button></th>
+            <th><button onClick={orderAmount}>Amount</button></th>
           </thead>
           <tbody>
             {
-              user.income ? user.income.map(rec => (
+              income ? income.map(rec => (
                 <tr>
                   <td>{rec.description}</td>
                   <td>{new Date(rec.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</td>
