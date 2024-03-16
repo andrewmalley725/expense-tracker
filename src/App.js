@@ -35,6 +35,7 @@ function App(){
     const submit = () => {
 
       setShow(false);
+      setLogin(true);
 
       const body = {
         username: username.current,
@@ -46,7 +47,7 @@ function App(){
       axios.post(`${api}/addUser`, body).then(res => {
         localStorage.setItem('user', JSON.stringify(res.data.user));
         localStorage.setItem("apiKey", res.data.apiKey);
-        setLogin(true);
+        
         window.location.reload();
       })
       .catch(error => console.log(error));
@@ -75,9 +76,10 @@ function App(){
         password: password.current
       };
       setShow(false);
+      setLogin(true);
       axios.post(`${api}/authenticate`, body).then(res => {
         if (res.data.status === 'successfully logged in'){
-          setLogin(true);
+          
           localStorage.setItem('user', JSON.stringify(res.data.user));
           localStorage.setItem("apiKey", res.data.apiKey);
           window.location.reload();
@@ -195,7 +197,7 @@ function App(){
             </tbody>
           </table>
         </div>
-      ) : !login ? <h1>Loading Data...</h1> : <></>
+      ) : !localStorage.getItem('user') ? <h1>Loading Data...</h1> : <></>
     );
   }
 
