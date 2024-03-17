@@ -1,0 +1,39 @@
+import { useRef, useState } from "react";
+import axios from 'axios';
+import NewAcc from "./NewAcc";
+
+export default function Login({api, setFunc, setShow, setLogin}){
+    const username = useRef("");
+    const password = useRef("");
+    const [msg, setMsg] = useState("");
+
+    const submit = () => {
+      const body = {
+        username: username.current,
+        password: password.current
+      };
+      setShow(false);
+      setLogin(true);
+      axios.post(`${api}/authenticate`, body).then(res => {
+        if (res.data.status === 'successfully logged in'){
+          
+          localStorage.setItem('user', JSON.stringify(res.data.user));
+          localStorage.setItem("apiKey", res.data.apiKey);
+          window.location.reload();
+        }
+        else {
+          setMsg(res.data.status);
+        }
+      })
+    }
+    return(
+      <div className="form-container">
+        <h4>Expense tracker login</h4>
+        <p style={{color: 'red'}}>{msg}</p>
+        Username: <input type='text' onChange={(e) => username.current = e.target.value}></input><br/>
+        Password: <input type='password' onChange={(e) => password.current = e.target.value}></input><br/>
+        <button type='button' onClick={submit}>Submit</button>
+        <button type='button' onClick={() => {setFunc(<NewAcc api={api} setShow={setShow} setFunc={setFunc} setLogin={setLogin}/>)}}>Create new account</button>  
+      </div>
+    )
+  }
