@@ -12,11 +12,11 @@ export default function Login({api, setFunc, setShow, setLogin}){
         username: username.current,
         password: password.current
       };
-      setShow(false);
-      setLogin(true);
+      
       axios.post(`${api}/authenticate`, body).then(res => {
         if (res.data.status === 'successfully logged in'){
-          
+          setShow(false);
+          setLogin(true);
           localStorage.setItem('user', JSON.stringify(res.data.user));
           localStorage.setItem("apiKey", res.data.apiKey);
           window.location.reload();
