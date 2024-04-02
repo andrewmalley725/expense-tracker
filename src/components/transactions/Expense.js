@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import axios from 'axios';
 
 export default function Expense({api, setShow, setLogin}){
@@ -7,10 +7,11 @@ export default function Expense({api, setShow, setLogin}){
     const description = useRef("");
     const user = JSON.parse(localStorage.getItem("user"));
     const apiKey = localStorage.getItem("apiKey");
+    const [isLoading, setLoading] = useState(false);
     const url = `${api}/addTransaction/${user._id}`;
 
     const add = () => {
-
+      setLoading(true);
       const headers = {
         'x-api-key': apiKey
       }
@@ -29,6 +30,7 @@ export default function Expense({api, setShow, setLogin}){
         axios.post(url, body, { headers }).then(res => {
           console.log(res.data);
           localStorage.setItem("user", JSON.stringify(res.data.user));
+          setLoading(false);
           window.location.reload();
         })
         .catch(error => {console.log(error)});
@@ -50,8 +52,11 @@ export default function Expense({api, setShow, setLogin}){
         </select><br/>
         Amount: $<input type='number' onChange={(e) => {amount.current = e.target.value}}></input><br/>
         Description: <input type='text' onChange={(e) => {description.current = e.target.value}}></input><br/>
-        <button type='button' onClick={add}>Add</button>
-        <button type='button' onClick={() => {setShow(false); setLogin(true)}}>Close</button>
+        <div style={{display: isLoading ? 'none' : 'block'}}>
+          <button type='button' onClick={add}>Add</button>
+          <button type='button' onClick={() => {setShow(false); setLogin(true)}}>Close</button>
+        </div>
+        <div style={{display: isLoading ? 'block' : 'none'}}>Loading...</div>
       </div>
     )
   }

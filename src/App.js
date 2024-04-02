@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Login from './components/users/Login';
 import Modal from './Modal';
 import Categories from './components/categories/Categories';
-
+import axios from 'axios';
 
 function App(){
   const api = 'https://finance-app-flask-afh4ecdnpq-uc.a.run.app';
@@ -15,6 +15,22 @@ function App(){
   
   useEffect(() => {
     setFunc(<Login api={api} setShow={setShow} setFunc={setFunc} setLogin={setLogin}/>)
+
+    // if (localStorage.getItem('user')){
+    //   const user = JSON.parse(localStorage.getItem('user'));
+    //   const apiKey = localStorage.getItem('apiKey');
+    //   const userid = user._id;
+    //   const payload = {
+    //     headers : {
+    //       'x-api-key': apiKey
+    //     }
+    //   } 
+    //   axios.get(`${api}/data/${userid}`, payload).then(res => {
+    //       localStorage.setItem('user', JSON.stringify(res.data.user));
+    //       localStorage.setItem("apiKey", res.data.apiKey);
+    //       window.location.reload();
+    //   })
+    // }
   }, [])
 
   return ( //main

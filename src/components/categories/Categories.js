@@ -5,10 +5,13 @@ import Expense from '../transactions/Expense';
 import Transactions from '../transactions/Transactions';
 import Paychecks from '../income/Paychecks';
 import Login from '../users/Login';
+import { useState } from 'react';
 
 
 export default function Categories({api, setFunc, setShow, setLogin}){
     const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
+    const [isLoading, setLoading] = useState(false);
+
 
     const newCategory = () => {
       setFunc(<AddCategory api={api} setShow={setShow} setLogin={setLogin}/>);
@@ -44,6 +47,7 @@ export default function Categories({api, setFunc, setShow, setLogin}){
     }
 
     function del(rec){
+      setLoading(true);
       const apiKey = localStorage.getItem('apiKey');
       const payload = {
         headers: {
@@ -52,6 +56,7 @@ export default function Categories({api, setFunc, setShow, setLogin}){
       }
       axios.delete(`${api}/deleteCategory/${user._id}?category=${rec.account_name}`, payload).then((res) => {
         localStorage.setItem("user", JSON.stringify(res.data.user));
+        setLoading(false);
         window.location.reload();
       })
     }
@@ -82,7 +87,7 @@ export default function Categories({api, setFunc, setShow, setLogin}){
                   <td>{rec.account_name}</td>
                   <td>{(rec.weight * 100).toFixed(1)}%</td>
                   <td>${(rec.balance * 1.0).toFixed(2)}</td>
-                  {rec.account_name !== 'Unallocated funds' ? <td><button type='button' onClick={() => del(rec)}>DELETE</button></td> : <td></td>}
+                  {rec.account_name !== 'Unallocated funds' ? <td><button type='button' onClick={() => del(rec)} style={{display: isLoading ? 'none' : 'block'}}>DELETE</button></td> : <td></td>}
                 </tr>
               )) 
               : <></>}

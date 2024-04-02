@@ -6,8 +6,10 @@ export default function Login({api, setFunc, setShow, setLogin}){
     const username = useRef("");
     const password = useRef("");
     const [msg, setMsg] = useState("");
+    const [isLoading, setLoading] = useState(false);
 
     const submit = () => {
+      setLoading(true);
       const body = {
         username: username.current,
         password: password.current
@@ -24,6 +26,7 @@ export default function Login({api, setFunc, setShow, setLogin}){
         else {
           setMsg(res.data.status);
         }
+        setLoading(false);
       })
     }
     return(
@@ -32,8 +35,11 @@ export default function Login({api, setFunc, setShow, setLogin}){
         <p style={{color: 'red'}}>{msg}</p>
         Username: <input type='text' onChange={(e) => username.current = e.target.value}></input><br/>
         Password: <input type='password' onChange={(e) => password.current = e.target.value}></input><br/>
-        <button type='button' onClick={submit}>Submit</button>
-        <button type='button' onClick={() => {setFunc(<NewAcc api={api} setShow={setShow} setFunc={setFunc} setLogin={setLogin}/>)}}>Create new account</button>  
+        <div style={{display: isLoading ? 'none' : 'block'}}>
+          <button type='button' onClick={submit}>Submit</button>
+          <button type='button' onClick={() => {setFunc(<NewAcc api={api} setShow={setShow} setFunc={setFunc} setLogin={setLogin}/>)}}>Create new account</button>
+        </div>
+        <div style={{display: isLoading ? 'block' : 'none'}}>Loading...</div>
       </div>
     )
   }
