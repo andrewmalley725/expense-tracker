@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Login from './components/users/Login';
 import Modal from './Modal';
 import Categories from './components/categories/Categories';
-import axios from 'axios';
+// import axios from 'axios';
 
 function App(){
   const api = 'https://finance-app-flask-afh4ecdnpq-uc.a.run.app';

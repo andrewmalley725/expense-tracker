@@ -6,6 +6,7 @@ import Transactions from '../transactions/Transactions';
 import Paychecks from '../income/Paychecks';
 import Login from '../users/Login';
 import { useState } from 'react';
+import TransferFunds from '../transactions/TransferFunds';
 
 
 export default function Categories({api, setFunc, setShow, setLogin}){
@@ -46,6 +47,11 @@ export default function Categories({api, setFunc, setShow, setLogin}){
       setShow(true);
     }
 
+    const transferFunds = () => {
+      setFunc(<TransferFunds api={api} setShow={setShow} setLogin={setLogin}/>);
+      setShow(true);
+    }
+
     function del(rec){
       setLoading(true);
       const apiKey = localStorage.getItem('apiKey');
@@ -71,6 +77,7 @@ export default function Categories({api, setFunc, setShow, setLogin}){
           <button type='button' onClick={addExpense}>Add expense</button>
           <button type='button' onClick={viewTransactions}>View transactions</button>
           <button type='button' onClick={viewIncome}>View income</button>
+          <button type='button' onClick={transferFunds}>Transfer funds</button>
           <button type='button' onClick={logout}>Logout</button>
           <table>
             <thead>
