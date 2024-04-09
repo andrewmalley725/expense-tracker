@@ -30,8 +30,9 @@ export default function Expense({api, setShow, setLogin}){
         axios.post(url, body, { headers }).then(res => {
           console.log(res.data);
           localStorage.setItem("user", JSON.stringify(res.data.user));
-          setLoading(false);
+          
           window.location.reload();
+          setLoading(false);
         })
         .catch(error => {console.log(error)});
       }

@@ -7,7 +7,7 @@ import Paychecks from '../income/Paychecks';
 import Login from '../users/Login';
 import { useState } from 'react';
 import TransferFunds from '../transactions/TransferFunds';
-
+import AddBalance from '../income/AddBalance';
 
 export default function Categories({api, setFunc, setShow, setLogin}){
     const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
@@ -52,6 +52,12 @@ export default function Categories({api, setFunc, setShow, setLogin}){
       setShow(true);
     }
 
+    function addBalance(rec){
+      const name = rec.account_name;
+      setFunc(<AddBalance api={api} setShow={setShow} setLogin={setLogin} category={name}/>)
+      setShow(true);
+    }
+
     function del(rec){
       setLoading(true);
       const apiKey = localStorage.getItem('apiKey');
@@ -86,6 +92,7 @@ export default function Categories({api, setFunc, setShow, setLogin}){
                 <th>Weight</th>
                 <th>Balance</th>
                 <th></th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -94,6 +101,7 @@ export default function Categories({api, setFunc, setShow, setLogin}){
                   <td>{rec.account_name}</td>
                   <td>{(rec.weight * 100).toFixed(1)}%</td>
                   <td>${(rec.balance * 1.0).toFixed(2)}</td>
+                  <td><button type='button' onClick={() => addBalance(rec)}>ADD</button></td>
                   {rec.account_name !== 'Unallocated funds' ? <td><button type='button' onClick={() => del(rec)} style={{display: isLoading ? 'none' : 'block'}}>DELETE</button></td> : <td></td>}
                 </tr>
               )) 
@@ -110,6 +118,7 @@ export default function Categories({api, setFunc, setShow, setLogin}){
                     ${(user.balance * 1).toFixed(2)}
                   </b>
                 </td>
+                <td></td>
                 <td></td>
               </tr>
             </tbody>
