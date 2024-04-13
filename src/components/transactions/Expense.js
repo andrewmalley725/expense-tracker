@@ -17,7 +17,8 @@ export default function Expense({api, setShow, setLogin}){
       }
 
       if (account.current === null){
-        alert('Please select an account!')
+        alert('Please select an account!');
+        setLoading(false);
       }
 
       else {
@@ -30,9 +31,7 @@ export default function Expense({api, setShow, setLogin}){
         axios.post(url, body, { headers }).then(res => {
           console.log(res.data);
           localStorage.setItem("user", JSON.stringify(res.data.user));
-          
           window.location.reload();
-          setLoading(false);
         })
         .catch(error => {console.log(error)});
       }

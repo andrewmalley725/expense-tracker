@@ -68,7 +68,6 @@ export default function Categories({api, setFunc, setShow, setLogin}){
       }
       axios.delete(`${api}/deleteCategory/${user._id}?category=${rec.account_name}`, payload).then((res) => {
         localStorage.setItem("user", JSON.stringify(res.data.user));
-        setLoading(false);
         window.location.reload();
       })
     }

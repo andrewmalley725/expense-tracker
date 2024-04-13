@@ -23,7 +23,6 @@ export default function Payday({api, setShow, setLogin}){
       axios.post(url, body, { headers }).then(res => {
         console.log('added');
         localStorage.setItem("user", JSON.stringify(res.data.user));
-        setLoading(false);
         window.location.reload();
       })
       .catch(error => {console.log(error)});

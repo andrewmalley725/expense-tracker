@@ -25,7 +25,6 @@ export default function AddBalance({api, setShow, setLogin, category}){
         console.log('added');
         localStorage.setItem("user", JSON.stringify(res.data.user));
         window.location.reload();
-        setLoading(false);
       })
       .catch(error => {console.log(error)});
     }
