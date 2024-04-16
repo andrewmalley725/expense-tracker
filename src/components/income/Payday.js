@@ -17,7 +17,7 @@ export default function Payday({api, setShow, setLogin}){
 
       const body = {
         amount: parseFloat(amount.current),
-        description: description.current
+        description: description.current.trimEnd()
       };
 
       axios.post(url, body, { headers }).then(res => {

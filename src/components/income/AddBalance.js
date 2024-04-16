@@ -18,7 +18,7 @@ export default function AddBalance({api, setShow, setLogin, category}){
       const body = {
         amount: parseFloat(amount.current),
         category: category,
-        description: description.current
+        description: description.current.trimEnd()
       };
 
       axios.post(url, body, { headers }).then(res => {

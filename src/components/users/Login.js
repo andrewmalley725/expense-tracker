@@ -11,7 +11,7 @@ export default function Login({api, setFunc, setShow, setLogin}){
     const submit = () => {
       setLoading(true);
       const body = {
-        username: username.current,
+        username: username.current.trimEnd(),
         password: password.current
       };
       

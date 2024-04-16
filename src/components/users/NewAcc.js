@@ -17,9 +17,9 @@ export default function NewAcc({api, setFunc, setShow, setLogin}){
       
 
       const body = {
-        username: username.current,
-        firstname: firstname.current,
-        lastname: lastname.current,
+        username: username.current.trimEnd(),
+        firstname: firstname.current.trimEnd(),
+        lastname: lastname.current.trimEnd(),
         password: password.current,
       };
 
