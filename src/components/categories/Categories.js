@@ -91,7 +91,7 @@ export default function Categories({api, setFunc, setShow, setLogin}){
                 <th>Weight</th>
                 <th>Balance</th>
                 <th></th>
-                <th></th>
+                {/* <th></th> */}
               </tr>
             </thead>
             <tbody>
@@ -100,7 +100,7 @@ export default function Categories({api, setFunc, setShow, setLogin}){
                   <td>{rec.account_name}</td>
                   <td>{(rec.weight * 100).toFixed(1)}%</td>
                   <td>${(rec.balance * 1.0).toFixed(2)}</td>
-                  <td><button type='button' onClick={() => addBalance(rec)}>ADD</button></td>
+                  {/* <td><button type='button' onClick={() => addBalance(rec)}>ADD</button></td> */}
                   {rec.account_name !== 'Unallocated funds' ? <td><button type='button' onClick={() => del(rec)} style={{display: isLoading ? 'none' : 'block'}}>DELETE</button></td> : <td></td>}
                 </tr>
               )) 
@@ -118,7 +118,7 @@ export default function Categories({api, setFunc, setShow, setLogin}){
                   </b>
                 </td>
                 <td></td>
-                <td></td>
+                {/* <td></td> */}
               </tr>
             </tbody>
           </table>
