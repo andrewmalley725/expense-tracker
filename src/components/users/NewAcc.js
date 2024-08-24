@@ -50,7 +50,7 @@ export default function NewAcc({api, setFunc, setShow, setLogin}){
         Password: <input type='password' onChange={(e) => password.current = e.target.value}></input><br/>
         <div style={{display: isLoading ? 'none' : 'block'}}>
           <button type='button' onClick={submit}>Submit</button>
-          <button type='button' onClick={() => {setFunc(<Login api={api} setShow={setShow} setFunc={setFunc} setLogin={setLogin}/>)}}>Create new account</button>
+          <button type='button' onClick={() => {setFunc(<Login api={api} setShow={setShow} setFunc={setFunc} setLogin={setLogin}/>)}}>Create account</button>
         </div>
         <div style={{display: isLoading ? 'block' : 'none'}}>Loading...</div>
       </div>

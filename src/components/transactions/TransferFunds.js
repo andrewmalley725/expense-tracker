@@ -1,9 +1,9 @@
 import { useRef, useState } from "react";
 import axios from 'axios';
 
-export default function TransferFunds({api, setShow, setLogin}){
+export default function TransferFunds({api, setShow, setLogin, account}){
     const to = useRef(null);
-    const from = useRef(null);
+    const from = account;
     const amount = useRef(0);
     const user = JSON.parse(localStorage.getItem("user"));
     const apiKey = localStorage.getItem("apiKey");
@@ -16,7 +16,7 @@ export default function TransferFunds({api, setShow, setLogin}){
         'x-api-key': apiKey
       }
 
-      if (to.current === null || from.current === null){
+      if (to.current === null){
         alert('Please select valid categories.')
       }
 
@@ -24,7 +24,7 @@ export default function TransferFunds({api, setShow, setLogin}){
         const body = {
           to: to.current ? to.current : 'Unallocated funds',
           amount: parseFloat(amount.current),
-          from: from.current ? from.current : 'Unallocated funds'
+          from: from
         };
 
         axios.post(url, body, { headers }).then(res => {
@@ -39,22 +39,14 @@ export default function TransferFunds({api, setShow, setLogin}){
     return(
       <div className='form-container'>
         <h4>Add expense</h4>
-        Account (from): <select onChange={(e) => from.current = e.target.value}>
+        From: {from}<br/>
+        To: <select onChange={(e) => to.current = e.target.value}>
           <option selected disabled value={null}>Select a category</option>
           {
             user.accounts ? user.accounts.map(rec => {
               return(
-                <option value={rec.account_name}>{rec.account_name}</option>
-              )
-            }) : <></>
-          }
-        </select><br/>
-        Account (to): <select onChange={(e) => to.current = e.target.value}>
-          <option selected disabled value={null}>Select a category</option>
-          {
-            user.accounts ? user.accounts.map(rec => {
-              return(
-                <option value={rec.account_name}>{rec.account_name}</option>
+                rec.account_name !== from ? <option value={rec.account_name}>{rec.account_name}</option>
+                : <></>
               )
             }) : <></>
           }

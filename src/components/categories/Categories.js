@@ -47,8 +47,9 @@ export default function Categories({api, setFunc, setShow, setLogin}){
       setShow(true);
     }
 
-    const transferFunds = () => {
-      setFunc(<TransferFunds api={api} setShow={setShow} setLogin={setLogin}/>);
+    function transferFunds(rec) {
+      const name = rec.account_name;
+      setFunc(<TransferFunds api={api} setShow={setShow} setLogin={setLogin} account={name}/>);
       setShow(true);
     }
 
@@ -82,7 +83,6 @@ export default function Categories({api, setFunc, setShow, setLogin}){
           <button type='button' onClick={addExpense}>Add expense</button>
           <button type='button' onClick={viewTransactions}>View transactions</button>
           <button type='button' onClick={viewIncome}>View income</button>
-          <button type='button' onClick={transferFunds}>Transfer funds</button>
           <button type='button' onClick={logout}>Logout</button>
           <table>
             <thead>
@@ -91,7 +91,7 @@ export default function Categories({api, setFunc, setShow, setLogin}){
                 <th>Weight</th>
                 <th>Balance</th>
                 <th></th>
-                {/* <th></th> */}
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -100,6 +100,7 @@ export default function Categories({api, setFunc, setShow, setLogin}){
                   <td>{rec.account_name}</td>
                   <td>{(rec.weight * 100).toFixed(1)}%</td>
                   <td>${(rec.balance * 1.0).toFixed(2)}</td>
+                  <td><button type='button' onClick={() => transferFunds(rec)}>Transfer</button></td>
                   {/* <td><button type='button' onClick={() => addBalance(rec)}>ADD</button></td> */}
                   {rec.account_name !== 'Unallocated funds' ? <td><button type='button' onClick={() => del(rec)} style={{display: isLoading ? 'none' : 'block'}}>DELETE</button></td> : <td></td>}
                 </tr>
@@ -118,7 +119,7 @@ export default function Categories({api, setFunc, setShow, setLogin}){
                   </b>
                 </td>
                 <td></td>
-                {/* <td></td> */}
+                <td></td>
               </tr>
             </tbody>
           </table>
