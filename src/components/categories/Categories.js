@@ -25,11 +25,6 @@ export default function Categories({api, setFunc, setShow, setLogin}){
       setShow(true);
     }
 
-    const addExpense = () => {
-      setFunc(<Expense api={api} setShow={setShow} setLogin={setLogin}/>);
-      setShow(true);
-    }
-
     const logout = () => {
       localStorage.clear();
       setFunc(<Login api={api} setShow={setShow} setFunc={setFunc} setLogin={setLogin}/>);
@@ -44,6 +39,12 @@ export default function Categories({api, setFunc, setShow, setLogin}){
 
     const viewIncome = () => {
       setFunc(<Paychecks setShow={setShow} setLogin={setLogin}/>);
+      setShow(true);
+    }
+
+    function addExpense(rec) {
+      const name = rec.account_name;
+      setFunc(<Expense api={api} setShow={setShow} setLogin={setLogin} account={name}/>);
       setShow(true);
     }
 
@@ -80,7 +81,6 @@ export default function Categories({api, setFunc, setShow, setLogin}){
           <h2>Current Total Balance: ${user.balance.toFixed(2)}</h2>
           <button type='button' onClick={newCategory}>New category</button>
           <button type='button' onClick={addFunds}>Add funds</button>
-          <button type='button' onClick={addExpense}>Add expense</button>
           <button type='button' onClick={viewTransactions}>View transactions</button>
           <button type='button' onClick={viewIncome}>View income</button>
           <button type='button' onClick={logout}>Logout</button>
@@ -93,6 +93,7 @@ export default function Categories({api, setFunc, setShow, setLogin}){
                 <th></th>
                 <th></th>
                 <th></th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -101,6 +102,7 @@ export default function Categories({api, setFunc, setShow, setLogin}){
                   <td>{rec.account_name}</td>
                   <td>{(rec.weight * 100).toFixed(1)}%</td>
                   <td>${(rec.balance * 1.0).toFixed(2)}</td>
+                  <td><button type='button' onClick={() => addExpense(rec)}>Add expense</button></td>
                   <td><button type='button' onClick={() => transferFunds(rec)}>Transfer</button></td>
                   <td><button type='button' onClick={() => addBalance(rec)}>ADD</button></td>
                   {rec.account_name !== 'Unallocated funds' ? <td><button type='button' onClick={() => del(rec)} style={{display: isLoading ? 'none' : 'block'}}>DELETE</button></td> : <td></td>}
@@ -119,6 +121,7 @@ export default function Categories({api, setFunc, setShow, setLogin}){
                     ${(user.balance * 1).toFixed(2)}
                   </b>
                 </td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
